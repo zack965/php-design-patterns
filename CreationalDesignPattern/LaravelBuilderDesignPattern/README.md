@@ -1,66 +1,212 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Builder Design Pattern in PHP and laravel
+this project is an implementation of the Builder Pattern in PHP and laravel using a simple example of building a car .
+## Overview
+The Builder pattern is a creational design pattern that allows for the step-by-step creation of complex objects. 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Components of the Builder Pattern
+- Product (Car): The  object that we are going to construct.
+- Builder Interface (ICarBuilder): Specifies the methods for creating the parts of the Product object.
+- Concrete Builder (ConcreteBuilder): Implements the Builder interface and constructs and assembles parts of the Product.
+- Director (PorcheBuilder): Constructs the object using the Builder interface.
 
-## About Laravel
+#### The Car class represents the  object that is being built.
+```php
+<?php
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+namespace App\Builder;
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+class Car
+{
+    public string $model;
+    public string $YearOfRelease;
+    public int $price;
+    public string $Brand;
+    public int $topSpeed;
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    // Getter for model
+    public function getModel(): string
+    {
+        return $this->model;
+    }
 
-## Learning Laravel
+    // Getter for YearOfRelease
+    public function getYearOfRelease(): string
+    {
+        return $this->YearOfRelease;
+    }
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    // Getter for price
+    public function getPrice(): int
+    {
+        return $this->price;
+    }
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    // Getter for Brand
+    public function getBrand(): string
+    {
+        return $this->Brand;
+    }
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    // Getter for topSpeed
+    public function getTopSpeed(): int
+    {
+        return $this->topSpeed;
+    }
+}
 
-## Laravel Sponsors
+```
+#### Builder Interface: ICarBuilder
+The **ICarBuilder** interface defines the methods required to build the parts of the Car object.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
+```php
+<?php
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+namespace App\Builder;
 
-## Contributing
+interface ICarBuilder
+{
+    public function buildModel(string $model): ICarBuilder;
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    public function buildYearOfRelease(string $YearOfRelease): ICarBuilder;
 
-## Code of Conduct
+    public function buildPrice(int $price): ICarBuilder;
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    public function buildBrand(string $brand): ICarBuilder;
 
-## Security Vulnerabilities
+    public function buildTopSpeed(int $topSpeed): ICarBuilder;
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    public function getCar(): Car;
+    public function reset(): void;
+}
 
-## License
+```
+#### Concrete Builder: ConcreteBuilder
+The **ConcreteBuilder** class implements the **ICarBuilder** interface and provides the actual implementations for constructing the **Car** parts.
+```php
+<?php
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+namespace App\Builder;
+
+class ConcreteBuilder implements ICarBuilder
+{
+    private Car $builder;
+    public function __construct()
+    {
+        $this->reset();
+    }
+    public function buildModel(string $model): ICarBuilder
+    {
+        $this->builder->model = $model;
+        return $this;
+    }
+
+    public function buildYearOfRelease(string $YearOfRelease): ICarBuilder
+    {
+        $this->builder->YearOfRelease = $YearOfRelease;
+        return $this;
+    }
+
+    public function buildPrice(int $price): ICarBuilder
+    {
+        $this->builder->price = $price;
+        return $this;
+    }
+
+    public function buildBrand(string $brand): ICarBuilder
+    {
+        $this->builder->Brand = $brand;
+        return $this;
+    }
+
+    public function buildTopSpeed(int $topSpeed): ICarBuilder
+    {
+        $this->builder->topSpeed = $topSpeed;
+        return $this;
+    }
+
+    public function getCar(): Car
+    {
+        return $this->builder;
+    }
+    public function reset(): void
+    {
+        $this->builder = new Car();
+    }
+}
+
+```
+### Director: PorcheBuilder
+The **PorcheBuilder** class is responsible for managing the construction process. It specifies the order in which to call the building steps to construct a particular configuration of the **Car**.
+```php
+<?php
+
+namespace App\Builder\CarBuilders;
+
+use App\Builder\ICarBuilder;
+
+class PorcheBuilder
+{
+
+    private $builder;
+    public function setBuilder(ICarBuilder $builder)
+    {
+        $this->builder = $builder;
+    }
+    public function buildPorche(): ICarBuilder
+    {
+        $this->builder->buildBrand('Porche');
+        $this->builder->buildModel('Cayenne');
+        $this->builder->buildYearOfRelease('2021');
+        $this->builder->buildPrice(300000);
+        $this->builder->buildTopSpeed(210);
+        return $this->builder;
+    }
+}
+
+```
+#### Client Code
+The client code initializes the builder and director, constructs the **Car** object, and retrieves it.
+```php
+<?php
+
+namespace App\Console\Commands;
+
+use App\Builder\CarBuilders\PorcheBuilder;
+use App\Builder\ConcreteBuilder;
+use Illuminate\Console\Command;
+
+class BuildCar extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:build-car';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        //
+        $this->info("Command for building car ");
+        $builder = new ConcreteBuilder();
+        $PorcheBuilder = new PorcheBuilder();
+        $PorcheBuilder->setBuilder($builder);
+        $PorcheBuilder->buildPorche();
+        $car = $builder->getCar();
+        $this->info("Brand: " . $car->getBrand());
+    }
+}
+
+```
+
