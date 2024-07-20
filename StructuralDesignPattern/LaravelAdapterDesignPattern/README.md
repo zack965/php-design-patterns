@@ -1,66 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Adapter Design Pattern Implementation in PHP
+## Overview
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project demonstrates the Adapter Design Pattern in PHP for a notification system. The Adapter Design Pattern allows different notification services (such as email and SMS) to be used interchangeably by providing a common interface.
 
-## About Laravel
+## Code Structure
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Services
+1. EmailService : Handles sending email notifications.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```php
+// src/Services/EmailService.php
+namespace Zack\LaravelAdapterDesignPattern\Services;
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+class EmailService
+{
+    public function sendEmail($to, $message): string
+    {
+        // Implementation for sending email using email service
+        return "Email sent to $to with message '$message'";
+    }
+}
 
-## Learning Laravel
+```
+2. SmsService : Handles sending SMS notifications
+```php 
+<?php
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+namespace Zack\LaravelAdapterDesignPattern\Services;
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+class SmsService
+{
+    // Implementation for sending SMS using SMS service
+    public function sendSMS($to, $message): string
+    {
+        return "SMS sent to $to with message '$message'";
+    }
+}
+```
+###  Adapters
+1. EmailAdapter : Adapts EmailService to the AppNotificationContract interface.
+```php
+<?php
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+namespace Zack\LaravelAdapterDesignPattern\Adapters;
 
-## Laravel Sponsors
+use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
+use Zack\LaravelAdapterDesignPattern\Services\EmailService;
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+class EmailAdapter implements AppNotificationContract
+{
+    private $emailService;
+    public function __construct(EmailService $emailService)
+    {
+        $this->emailService = $emailService;
+    }
+    public function sendNotification($to, $message): string
+    {
+        return $this->emailService->sendEmail($to, $message);
+    }
+}
+```
+2. SmsAdapter : Adapts SmsService to the AppNotificationContract interface.
+```php
+<?php
 
-### Premium Partners
+namespace Zack\LaravelAdapterDesignPattern\Adapters;
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
+use Zack\LaravelAdapterDesignPattern\Services\SmsService;
 
-## Contributing
+class SmsAdapter implements AppNotificationContract
+{
+    private $smsService;
+    public function __construct(SmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+    public function sendNotification($to, $message): string
+    {
+        return $this->smsService->sendSMS($message, $to);
+    }
+}
+```
+### Contract
+1. AppNotificationContract : Defines a common interface for sending notifications.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```php
+<?php
 
-## Code of Conduct
+namespace Zack\LaravelAdapterDesignPattern\Contracts;
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+interface AppNotificationContract
+{
+    public function sendNotification($to, $message): string;
+}
+```
+### Main Service
+1. NotificationService : Uses an adapter to send notifications, ensuring decoupling from specific service implementations.
 
-## Security Vulnerabilities
+```php
+<?php
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+namespace Zack\LaravelAdapterDesignPattern;
 
-## License
+use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+class NotificationService
+{
+    private AppNotificationContract $appNotificationContract;
+    public function __construct(AppNotificationContract $appNotificationContract)
+    {
+        $this->appNotificationContract = $appNotificationContract;
+    }
+    public function notify(string $message, string $to): string
+    {
+        return $this->appNotificationContract->sendNotification($message, $to);
+    }
+}
+```
+### Usage example 
+```php
+<?php
+
+use Zack\LaravelAdapterDesignPattern\Adapters\EmailAdapter;
+use Zack\LaravelAdapterDesignPattern\Adapters\SmsAdapter;
+use Zack\LaravelAdapterDesignPattern\NotificationService;
+use Zack\LaravelAdapterDesignPattern\Services\EmailService;
+use Zack\LaravelAdapterDesignPattern\Services\SmsService;
+
+require 'vendor/autoload.php';
+// email service usage
+$emailService = new EmailService();
+$emailAdapter = new EmailAdapter($emailService);
+$notificationService = new NotificationService($emailAdapter);
+echo $notificationService->notify("alhossnizakaria@gmail.com", "This is an SMS notification.") . "\n";
+
+
+
+// sms service usage
+$smsService = new SmsService();
+$smsAdapter = new SmsAdapter($smsService);
+$notificationService = new NotificationService($smsAdapter);
+echo $notificationService->notify("This is an email notification.", "1234567890") . "\n";
+```
+### Design Explanation
+1. Services: EmailService and SmsService handle the specific implementations for sending notifications.
+2. Adapters: EmailAdapter and SmsAdapter adapt the service methods to a common interface AppNotificationContract.
+3. Contract: AppNotificationContract ensures a unified method for sending notifications across different notifications.
+4. Main Service: NotificationService utilizes adapters to decouple notification sending logic from specific implementations.
