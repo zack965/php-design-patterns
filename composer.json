@@ -1,0 +1,18 @@
+{
+    "name": "zack/laravel-design-patterns",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Zack\\LaravelDesignPatterns\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "zack965",
+            "email": "elhossnizakaria@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
