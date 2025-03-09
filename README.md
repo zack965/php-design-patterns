@@ -25,9 +25,10 @@ The **PaymentContract** interface defines a contract for all payment methods. Ea
 ```php
 <?php
 
-namespace App\Payment;
+namespace Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Contracts;
 
-interface PaymentContract
+
+interface IPaymentContract
 {
     public function processPayment(): string;
 }
@@ -42,15 +43,15 @@ We have two payment methods, **PaypalPaymentMethod** and StripePaymentMethod, bo
 ```php
 <?php
 
-namespace App\Payment\PaymentMethod;
+namespace Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\PaymentMethods;
 
-use App\Payment\PaymentContract;
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Contracts\IPaymentContract;
 
-class PaypalPaymentMethod implements PaymentContract
+class PaypalPaymentMethod implements IPaymentContract
 {
     public function processPayment(): string
     {
-        return "this is a paypal payment method";
+        return "this is a paypal payment method \n";
     }
 }
 
@@ -60,15 +61,16 @@ class PaypalPaymentMethod implements PaymentContract
 ```php
 <?php
 
-namespace App\Payment\PaymentMethod;
+namespace Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\PaymentMethods;
 
-use App\Payment\PaymentContract;
 
-class StripePaymentMethod implements PaymentContract
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Contracts\IPaymentContract;
+
+class StripePaymentMethod implements IPaymentContract
 {
     public function processPayment(): string
     {
-        return "this is a stripe payment method";
+        return "this is a stripe payment method \n";
     }
 }
 
@@ -80,16 +82,17 @@ The **PaymentService** class uses the selected payment method to process the pay
 ```php
 <?php
 
-namespace App\Service;
+namespace Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Services;
 
-use App\Payment\PaymentContract;
-use App\Payment\PaymentMethod\PaypalPaymentMethod;
-use App\Payment\PaymentMethod\StripePaymentMethod;
+
 use InvalidArgumentException;
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Contracts\IPaymentContract;
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\PaymentMethods\PaypalPaymentMethod;
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\PaymentMethods\StripePaymentMethod;
 
 class PaymentService
 {
-    private PaymentContract $payment;
+    private IPaymentContract $payment;
 
     public function __construct(string $paymentMethodSelected)
     {
@@ -106,6 +109,7 @@ class PaymentService
     }
 }
 
+
 ```
 
 ## Usage inside a command:
@@ -113,43 +117,22 @@ class PaymentService
 
 <?php
 
-namespace App\Console\Commands;
+require 'vendor/autoload.php';
+use Zack\LaravelDesignPatterns\BehavioralDesignPattern\StrategyPattern\Services\PaymentService;
+$paymentMethodStripe = "stripe";
+$paymentServiceService = new PaymentService($paymentMethodStripe);
 
-use App\Service\PaymentService;
-use Illuminate\Console\Command;
+echo $paymentServiceService->pay();
+$paymentMethodapaypal = "paypal";
+$PaypalPaymentService = new PaymentService($paymentMethodapaypal);
+echo $PaypalPaymentService->pay();
 
-class InitPayment extends Command
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:init-payment';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = '';
+// this will llunch an exception
+$InvalidPaymentMethod = "invalid";
+$InvalidPaymentMethodService = new PaymentService($InvalidPaymentMethod);
+echo $InvalidPaymentMethodService->pay();
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        $paymentMethodStripe = "stripe";
-        $paymentServiceService = new PaymentService($paymentMethodStripe);
-        $this->info($paymentServiceService->pay());
-        $paymentMethodapaypal = "paypal";
-        $PaypalPaymentService = new PaymentService($paymentMethodapaypal);
-        $this->info($PaypalPaymentService->pay());
-        $InvalidPaymentMethod = "invalid";
-        $InvalidPaymentMethodService = new PaymentService($InvalidPaymentMethod);
-        $this->info($InvalidPaymentMethodService->pay());
-    }
-}
 
     
 ```
@@ -174,12 +157,12 @@ This app is a simple implementation of the Abstract Factory Design Pattern in PH
 ```php
 <?php
 
-namespace App\Generators;
-
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts;
 interface IGenerator
 {
     public function generate(): string;
 }
+
 
 ```
 
@@ -188,7 +171,9 @@ interface IGenerator
 ```php
 <?php
 
-namespace App\Generators;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators;
+
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts\IGenerator;
 
 abstract class DocumentCreator
 {
@@ -199,7 +184,6 @@ abstract class DocumentCreator
         return $document->generate();
     }
 }
-
 ```
 
 - **JsonDocumentGenerator**: Implements the `IGenerator` interface for generating JSON documents.
@@ -207,9 +191,9 @@ abstract class DocumentCreator
 ```php
 <?php
 
-namespace App\Generators\DocumentGenerators;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Generators;
 
-use App\Generators\IGenerator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts\IGenerator;
 
 class JsonDocumentGenerator implements IGenerator
 {
@@ -225,10 +209,9 @@ class JsonDocumentGenerator implements IGenerator
 ```php
 <?php
 
-namespace App\Generators\DocumentGenerators;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Generators;
 
-use App\Generators\IGenerator;
-
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts\IGenerator;
 
 class PdfDocumentGenerator implements IGenerator
 {
@@ -244,11 +227,10 @@ class PdfDocumentGenerator implements IGenerator
 ```php
 <?php
 
-namespace App\Generators\Creators;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators;
 
-use App\Generators\DocumentCreator;
-use App\Generators\DocumentGenerators\JsonDocumentGenerator;
-use App\Generators\IGenerator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts\IGenerator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Generators\JsonDocumentGenerator;
 
 class JsonDocumentCreator extends DocumentCreator
 {
@@ -264,11 +246,10 @@ class JsonDocumentCreator extends DocumentCreator
 ```php
 <?php
 
-namespace App\Generators\Creators;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators;
 
-use App\Generators\DocumentCreator;
-use App\Generators\DocumentGenerators\PdfDocumentGenerator;
-use App\Generators\IGenerator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Contracts\IGenerator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Generators\PdfDocumentGenerator;
 
 class PdfDocumentCreator extends DocumentCreator
 {
@@ -285,65 +266,45 @@ class PdfDocumentCreator extends DocumentCreator
 ```php
 <?php
 
-namespace App\Console\Commands;
 
-use App\Generators\Creators\JsonDocumentCreator;
-use App\Generators\Creators\PdfDocumentCreator;
-use App\Generators\DocumentCreator;
-use App\Generators\IGenerator;
-use Illuminate\Console\Command;
+require 'vendor/autoload.php';
 
-class FactoryMethodCommand extends Command
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators\DocumentCreator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators\JsonDocumentCreator;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\FactoryMethodPattern\Creators\PdfDocumentCreator;
+
+
+
+
+$inputPdf = "pdf";
+$inputJson = "json";
+$inputNull = "null";
+$creatorPdf = getCreator($inputPdf);
+$creatorJson = getCreator($inputJson);
+$creatorNull = getCreator($inputNull);
+echo $creatorPdf->create() . "\n";
+echo $creatorJson->create() . "\n";
+if ($creatorNull == null) {
+    echo "null creation \n";
+    return;
+} else {
+    echo $creatorNull?->create() . "\n";
+}
+/**
+ * Undocumented function
+ *
+ * @param string $type
+ * @return DocumentCreator|null
+ */
+function getCreator(string $type): ?DocumentCreator
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'factory-method-command';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'factory method command';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        //
-        $inputPdf = "pdf";
-        $inputJson = "json";
-        $this->info("Factory Method Command");
-        $inputNull = "null";
-        $creatorPdf = self::getCreator($inputPdf);
-        $creatorJson = self::getCreator($inputJson);
-        $creatorNull = self::getCreator($inputNull);
-        $this->info($creatorPdf->create());
-        $this->info($creatorJson->create());
-        if ($creatorNull == null) {
-            $this->info("null creation");
-            return;
-        } else {
-            $this->info($creatorNull?->create());
-        }
-
-
-        // $creatorJson->create();
-    }
-    public static function getCreator(string $type): ?DocumentCreator
-    {
-        switch ($type) {
-            case 'json':
-                return new JsonDocumentCreator();
-            case 'pdf':
-                return new PdfDocumentCreator();
-            default:
-                return null;
-        }
+    switch ($type) {
+        case 'json':
+            return new JsonDocumentCreator();
+        case 'pdf':
+            return new PdfDocumentCreator();
+        default:
+            return null;
     }
 }
 
@@ -369,8 +330,8 @@ The Builder pattern is a creational design pattern that allows for the step-by-s
 #### The Car class represents the  object that is being built.
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder;
 
-namespace App\Builder;
 
 class Car
 {
@@ -419,7 +380,10 @@ The **ICarBuilder** interface defines the methods required to build the parts of
 ```php
 <?php
 
-namespace App\Builder;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Contracts;
+
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder\Car;
+
 
 interface ICarBuilder
 {
@@ -436,14 +400,15 @@ interface ICarBuilder
     public function getCar(): Car;
     public function reset(): void;
 }
-
 ```
 #### Concrete Builder: ConcreteBuilder
 The **ConcreteBuilder** class implements the **ICarBuilder** interface and provides the actual implementations for constructing the **Car** parts.
 ```php
 <?php
 
-namespace App\Builder;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder;
+
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Contracts\ICarBuilder;
 
 class ConcreteBuilder implements ICarBuilder
 {
@@ -498,13 +463,12 @@ The **PorcheBuilder** class is responsible for managing the construction process
 ```php
 <?php
 
-namespace App\Builder\CarBuilders;
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder;
 
-use App\Builder\ICarBuilder;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Contracts\ICarBuilder;
 
 class PorcheBuilder
 {
-
     private $builder;
     public function setBuilder(ICarBuilder $builder)
     {
@@ -527,43 +491,20 @@ The client code initializes the builder and director, constructs the **Car** obj
 ```php
 <?php
 
-namespace App\Console\Commands;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder\ConcreteBuilder;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\BuilderDesignPattern\Builder\PorcheBuilder;
 
-use App\Builder\CarBuilders\PorcheBuilder;
-use App\Builder\ConcreteBuilder;
-use Illuminate\Console\Command;
+require "vendor/autoload.php";
 
-class BuildCar extends Command
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:build-car';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+echo "Command for building car " . "\n";
+$builder = new ConcreteBuilder();
+$PorcheBuilder = new PorcheBuilder();
+$PorcheBuilder->setBuilder($builder);
+$PorcheBuilder->buildPorche();
+$car = $builder->getCar();
+echo "Brand: " . $car->getBrand() . "\n";
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        //
-        $this->info("Command for building car ");
-        $builder = new ConcreteBuilder();
-        $PorcheBuilder = new PorcheBuilder();
-        $PorcheBuilder->setBuilder($builder);
-        $PorcheBuilder->buildPorche();
-        $car = $builder->getCar();
-        $this->info("Brand: " . $car->getBrand());
-    }
-}
 
 ```
 
@@ -583,8 +524,9 @@ This project demonstrates the Adapter Design Pattern in PHP for a notification s
 1. EmailService : Handles sending email notifications.
 
 ```php
-// src/Services/EmailService.php
-namespace Zack\LaravelAdapterDesignPattern\Services;
+<?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services;
+
 
 class EmailService
 {
@@ -599,12 +541,10 @@ class EmailService
 2. SmsService : Handles sending SMS notifications
 ```php 
 <?php
-
-namespace Zack\LaravelAdapterDesignPattern\Services;
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services;
 
 class SmsService
 {
-    // Implementation for sending SMS using SMS service
     public function sendSMS($to, $message): string
     {
         return "SMS sent to $to with message '$message'";
@@ -615,14 +555,14 @@ class SmsService
 1. EmailAdapter : Adapts EmailService to the AppNotificationContract interface.
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Adapters;
 
-namespace Zack\LaravelAdapterDesignPattern\Adapters;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Contracts\IAppNotificationContract;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services\EmailService;
 
-use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
-use Zack\LaravelAdapterDesignPattern\Services\EmailService;
-
-class EmailAdapter implements AppNotificationContract
+class EmailAdapter implements IAppNotificationContract
 {
+
     private $emailService;
     public function __construct(EmailService $emailService)
     {
@@ -637,14 +577,14 @@ class EmailAdapter implements AppNotificationContract
 2. SmsAdapter : Adapts SmsService to the AppNotificationContract interface.
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Adapters;
 
-namespace Zack\LaravelAdapterDesignPattern\Adapters;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Contracts\IAppNotificationContract;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services\SmsService;
 
-use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
-use Zack\LaravelAdapterDesignPattern\Services\SmsService;
-
-class SmsAdapter implements AppNotificationContract
+class SmsAdapter implements IAppNotificationContract
 {
+
     private $smsService;
     public function __construct(SmsService $smsService)
     {
@@ -661,10 +601,10 @@ class SmsAdapter implements AppNotificationContract
 
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Contracts;
 
-namespace Zack\LaravelAdapterDesignPattern\Contracts;
 
-interface AppNotificationContract
+interface IAppNotificationContract
 {
     public function sendNotification($to, $message): string;
 }
@@ -674,15 +614,14 @@ interface AppNotificationContract
 
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services;
 
-namespace Zack\LaravelAdapterDesignPattern;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Contracts\IAppNotificationContract;
 
-use Zack\LaravelAdapterDesignPattern\Contracts\AppNotificationContract;
-
-class NotificationService
+class Notifier
 {
-    private AppNotificationContract $appNotificationContract;
-    public function __construct(AppNotificationContract $appNotificationContract)
+    private IAppNotificationContract $appNotificationContract;
+    public function __construct(IAppNotificationContract $appNotificationContract)
     {
         $this->appNotificationContract = $appNotificationContract;
     }
@@ -696,26 +635,28 @@ class NotificationService
 ```php
 <?php
 
-use Zack\LaravelAdapterDesignPattern\Adapters\EmailAdapter;
-use Zack\LaravelAdapterDesignPattern\Adapters\SmsAdapter;
-use Zack\LaravelAdapterDesignPattern\NotificationService;
-use Zack\LaravelAdapterDesignPattern\Services\EmailService;
-use Zack\LaravelAdapterDesignPattern\Services\SmsService;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Adapters\EmailAdapter;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Adapters\SmsAdapter;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services\EmailService;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services\Notifier;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\AdapterDesignPattern\Services\SmsService;
 
 require 'vendor/autoload.php';
+
+
 // email service usage
 $emailService = new EmailService();
 $emailAdapter = new EmailAdapter($emailService);
-$notificationService = new NotificationService($emailAdapter);
-echo $notificationService->notify("alhossnizakaria@gmail.com", "This is an SMS notification.") . "\n";
+$notificationService = new Notifier($emailAdapter);
+echo $notificationService->notify("alhossnizakaria@gmail.com", "This is an Email notification.") . "\n";
 
 
 
 // sms service usage
 $smsService = new SmsService();
 $smsAdapter = new SmsAdapter($smsService);
-$notificationService = new NotificationService($smsAdapter);
-echo $notificationService->notify("This is an email notification.", "1234567890") . "\n";
+$notificationService = new Notifier($smsAdapter);
+echo $notificationService->notify("This is an SMS notification.", "1234567890") . "\n";
 ```
 ### Design Explanation
 1. Services: EmailService and SmsService handle the specific implementations for sending notifications.
@@ -734,9 +675,10 @@ This project demonstrates the Singleton Design Pattern in PHP. The Singleton Pat
 ### Implementation
 1. DatabaseInstance Class : The DatabaseInstance class is designed to follow the Singleton Design Pattern. It ensures that only one instance of the database connection exists throughout the application's lifecycle.
 ```php
-<?php
 
-namespace Zack\SignletonDesignPattern;
+<?php
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\SignleTonDesignPattern;
+
 
 class DatabaseInstance
 {
@@ -783,9 +725,9 @@ class DatabaseInstance
 ```php
 <?php
 
-require 'vendor/autoload.php';
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\SignleTonDesignPattern\DatabaseInstance;
 
-use Zack\SignletonDesignPattern\DatabaseInstance;
+require "vendor/autoload.php";
 
 $db = DatabaseInstance::getInstance('localhost', 3306);
 $db->connect();
@@ -807,28 +749,29 @@ This project demonstrates the implementation of the **Facade Design Pattern** in
     - Manages the home lighting system.
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems;
 
-namespace Zack\PhpFacadeDesignPattern\SubSystems;
+
 
 class LightSubSystem
 {
     public function turnOn(): string
     {
-        return  "Light Subsystem: Turning on the light\n";
+        return "Light Subsystem: Turning on the light\n";
     }
 
     public function turnOff(): string
     {
-        return  "Light Subsystem: Turning off the light\n";
+        return "Light Subsystem: Turning off the light\n";
     }
 
     public function changeColor(string $color): string
     {
-        return  "Light Subsystem: Changing the light color to {$color}\n";
+        return "Light Subsystem: Changing the light color to {$color}\n";
     }
     public function changePattern(string $pattern): string
     {
-        return  "Light Subsystem: Changing the light pattern to {$pattern}\n";
+        return "Light Subsystem: Changing the light pattern to {$pattern}\n";
     }
 }
 
@@ -838,8 +781,8 @@ class LightSubSystem
     - Manages WiFi connectivity.
 ```php
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems;
 
-namespace Zack\PhpFacadeDesignPattern\SubSystems;
 
 class WifiSubSystem
 {
@@ -869,11 +812,10 @@ class WifiSubSystem
 ```php
 
 <?php
+namespace Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\Facade;
 
-namespace Zack\PhpFacadeDesignPattern;
-
-use Zack\PhpFacadeDesignPattern\SubSystems\LightSubSystem;
-use Zack\PhpFacadeDesignPattern\SubSystems\WifiSubSystem;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\LightSubSystem;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\WifiSubSystem;
 
 class SmartHomeFacade
 {
@@ -899,11 +841,12 @@ class SmartHomeFacade
 ```php 
 <?php
 
-use Zack\PhpFacadeDesignPattern\SmartHomeFacade;
-use Zack\PhpFacadeDesignPattern\SubSystems\LightSubSystem;
-use Zack\PhpFacadeDesignPattern\SubSystems\WifiSubSystem;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\Facade\SmartHomeFacade;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\LightSubSystem;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\WifiSubSystem;
 
-require 'vendor/autoload.php';
+require "vendor/autoload.php";
+
 
 
 
