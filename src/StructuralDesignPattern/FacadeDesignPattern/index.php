@@ -1,16 +1,18 @@
 <?php
 
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\Facade\SmartHomeFacade;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\LightSubSystem;
+use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\SubSystems\WifiSubSystem;
 
 require "vendor/autoload.php";
-use Zack\LaravelDesignPatterns\StructuralDesignPattern\FacadeDesignPattern\Services\FacadePaymentService;
 
 
-$paymentMethodStripe = "stripe";
-$paymentServiceService = new FacadePaymentService(paymentMethodSelected: $paymentMethodStripe);
-echo $paymentServiceService->pay();
-$paymentMethodapaypal = "paypal";
-$PaypalPaymentService = new FacadePaymentService(paymentMethodSelected: $paymentMethodapaypal);
-echo $PaypalPaymentService->pay();
-/* $InvalidPaymentMethod = "invalid";
-$InvalidPaymentMethodService = new FacadePaymentService($InvalidPaymentMethod);
-echo $InvalidPaymentMethodService->pay(); */
+
+
+$lightSubSystem = new LightSubSystem();
+
+$wifiSubSystem = new WifiSubSystem();
+
+$smartHomeFacade = new SmartHomeFacade($lightSubSystem, $wifiSubSystem);
+
+print_r($smartHomeFacade->GetReadyToSleep());
