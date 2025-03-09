@@ -24,7 +24,12 @@ if ($creatorNull == null) {
 } else {
     echo $creatorNull?->create() . "\n";
 }
-
+/**
+ * Undocumented function
+ *
+ * @param string $type
+ * @return DocumentCreator|null
+ */
 function getCreator(string $type): ?DocumentCreator
 {
     switch ($type) {
