@@ -1046,3 +1046,128 @@ $handlerOne->setNext($handlerTwo);
 $handlerTwo->setNext($handlerThree);
 echo $handlerOne->handle($ticketLevelThree) . "\n";
 ```
+
+# # Prototype Design Pattern in PHP
+
+This example demonstrates the **Prototype Design Pattern** using a `PersonPrototype` class in PHP.
+
+## 📌 Overview
+The **Prototype Pattern** is a creational design pattern that allows cloning of objects **without depending on their concrete class**. It is useful when object creation is expensive and we need a copy instead of creating a new instance.
+
+## 🏗️ Implementation
+
+### 1️⃣ **PersonPrototype Class**
+This class represents a person with `name`, `age`, and `address`. It implements the `__clone()` method to perform deep cloning of the `Address` object.
+
+```php
+
+
+<?php
+
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\PrototypeDesignPattern;
+
+class PersonPrototype
+{
+    private string $name;
+    private int $age;
+    private Address $address;
+
+    public function __construct(string $name, int $age, Address $address)
+    {
+        $this->name = $name;
+        $this->age = $age;
+        $this->address = $address;
+    }
+
+    public function __clone()
+    {
+
+        $this->address = clone $this->address;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getAddress(): Address
+    {
+        return $this->address;
+    }
+}
+```
+### Address Class
+
+Since `PersonPrototype` contains an `Address` object, we need a separate class to handle address details.
+```php
+
+<?php
+
+namespace Zack\LaravelDesignPatterns\CreationalDesignPattern\PrototypeDesignPattern;
+
+
+
+class Address
+{
+
+    private string $city;
+    private string $street;
+
+    public function __construct(string $city, string $street)
+    {
+        $this->city = $city;
+        $this->street = $street;
+    }
+
+    public function setCity(string $city): void
+    {
+        $this->city = $city;
+    }
+
+    public function getCity(): string
+    {
+        return $this->city;
+    }
+
+
+    public function getStreet(): string
+    {
+        return $this->street;
+    }
+
+    public function setStreet($street): void
+    {
+        $this->street = $street;
+    }
+}
+```
+
+###  Client Code
+This demonstrates cloning and modifying a `PersonPrototype` object.
+
+```php
+
+<?php
+
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\PrototypeDesignPattern\Address;
+use Zack\LaravelDesignPatterns\CreationalDesignPattern\PrototypeDesignPattern\PersonPrototype;
+
+require "vendor/autoload.php";
+
+$originalPerson = new PersonPrototype(name: "John Doe", age: 30, address: new Address(city: "New York", street: "5th Avenue"));
+
+$clonedPerson = clone $originalPerson;
+
+$clonedPerson->setName("Jane Doe");
+echo "Original Name: " . $originalPerson->getName() . PHP_EOL;
+echo "Original Address: " . $originalPerson->getAddress()->getCity() . PHP_EOL;
+
+echo "Cloned Name: " . $clonedPerson->getName() . PHP_EOL;
+echo "Cloned Address: " . $clonedPerson->getAddress()->getCity() . PHP_EOL;
+
+```
